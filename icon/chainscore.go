@@ -577,10 +577,18 @@ var chainMethods = []*chainMethod{
 		},
 	}, icmodule.RevisionICON2R2, 0},
 	{scoreapi.Method{
-		scoreapi.Function, "addTask",
+		scoreapi.Function, "addTimer",
 		scoreapi.FlagExternal, 0,
 		[]scoreapi.Parameter{
 			{"blockHeight", scoreapi.Integer, nil, nil},
+		},
+		nil,
+	}, icmodule.RevisionICON2R2, 0},
+	{scoreapi.Method{
+		scoreapi.Function, "penalizeNonvoters",
+		scoreapi.FlagExternal, 1,
+		[]scoreapi.Parameter{
+			{"preps", scoreapi.ListTypeOf(1, scoreapi.Address), nil, nil},
 		},
 		nil,
 	}, icmodule.RevisionICON2R2, 0},
@@ -668,13 +676,14 @@ type config struct {
 	ConsistentValidationPenaltyMask       *common.HexInt `json:"consistentValidationPenaltyMask"`
 	ConsistentValidationPenaltySlashRatio *common.HexInt `json:"consistentValidationPenaltySlashRatio"`
 	DelegationSlotMax                     *common.HexInt `json:"delegationSlotMax"`
+	NonVotePenaltySlashRatio              *common.HexInt `json:"nonVotePenaltySlashRatio"`
 }
 
 func (c *config) String() string {
 	return fmt.Sprintf(
 		"termPeriod=%s mainPReps=%s subPReps=%s "+
 			"irep=%s rrep=%s br=%s upMultiplier=%s unstakeSlotMax=%s unboudingMax=%s "+
-			"vpCond=%s cvpCond=%s cvpMask=%s cvpsRatio=%s %s",
+			"vpCond=%s cvpCond=%s cvpMask=%s cvpsRatio=%s nvsRatio=%s %s",
 		c.TermPeriod,
 		c.MainPRepCount,
 		c.SubPRepCount,
@@ -688,6 +697,7 @@ func (c *config) String() string {
 		c.ConsistentValidationPenaltyCondition,
 		c.ConsistentValidationPenaltyMask,
 		c.ConsistentValidationPenaltySlashRatio,
+		c.NonVotePenaltySlashRatio,
 		c.RewardFund,
 	)
 }
@@ -700,7 +710,7 @@ func (c *config) Format(f fmt.State, r rune) {
 				f,
 				"Config{termPeriod=%s mainPReps=%s subPReps=%s "+
 					"irep=%s rrep=%s br=%s upMultiplier=%s unstakeSlotMax=%s unboudingMax=%s "+
-					"vpCond=%s cvpCond=%s cvpMask=%s cvpsRatio=%s %v}",
+					"vpCond=%s cvpCond=%s cvpMask=%s cvpsRatio=%s nvsRatio=%s %v}",
 				c.TermPeriod,
 				c.MainPRepCount,
 				c.SubPRepCount,
@@ -714,12 +724,13 @@ func (c *config) Format(f fmt.State, r rune) {
 				c.ConsistentValidationPenaltyCondition,
 				c.ConsistentValidationPenaltyMask,
 				c.ConsistentValidationPenaltySlashRatio,
+				c.NonVotePenaltySlashRatio,
 				c.RewardFund,
 			)
 		} else {
 			fmt.Fprintf(
 				f,
-				"Config{%s %s %s %s %s %s %s %s %s %s %s %s %s %v}",
+				"Config{%s %s %s %s %s %s %s %s %s %s %s %s %s %s %v}",
 				c.TermPeriod,
 				c.MainPRepCount,
 				c.SubPRepCount,
@@ -733,6 +744,7 @@ func (c *config) Format(f fmt.State, r rune) {
 				c.ConsistentValidationPenaltyCondition,
 				c.ConsistentValidationPenaltyMask,
 				c.ConsistentValidationPenaltySlashRatio,
+				c.NonVotePenaltySlashRatio,
 				c.RewardFund,
 			)
 		}
@@ -822,6 +834,7 @@ func newIconConfig() *config {
 		ConsistentValidationPenaltyMask:       common.NewHexInt(icmodule.DefaultConsistentValidationPenaltyMask),
 		ConsistentValidationPenaltySlashRatio: common.NewHexInt(icmodule.DefaultConsistentValidationPenaltySlashRatio),
 		DelegationSlotMax:                     common.NewHexInt(icmodule.DefaultDelegationSlotMax),
+		NonVotePenaltySlashRatio:              common.NewHexInt(icmodule.DefaultNonVotePenaltySlashRatio),
 		RewardFund: rewardFund{
 			Iglobal: common.NewHexInt(icmodule.DefaultIglobal),
 			Iprep:   common.NewHexInt(icmodule.DefaultIprep),
