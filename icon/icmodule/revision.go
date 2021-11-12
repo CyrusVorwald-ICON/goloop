@@ -83,11 +83,9 @@ const (
 	RevisionICON2R2      = Revision15
 	RevisionEnableJavaEE = RevisionICON2R2
 
-	RevisionICON2R3 = Revision16
+	RevisionICON2R3             = Revision16
 	RevisionEnableSetScoreOwner = RevisionICON2R3
-
-	// TODO: Fix a revision for enabling extra main preps
-	RevisionExtraMainPReps = 100
+	RevisionExtraMainPReps      = RevisionICON2R3
 )
 
 var revisionFlags = []module.Revision{
